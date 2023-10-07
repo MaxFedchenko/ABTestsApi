@@ -26,7 +26,7 @@ namespace ABTestsApi.Controllers
         {
             return Ok(new KeyValueDTO 
             { 
-                Key = "button_color", 
+                Key = "button-color", 
                 Value = _btnColorProviderService.Get() 
             });
         }
