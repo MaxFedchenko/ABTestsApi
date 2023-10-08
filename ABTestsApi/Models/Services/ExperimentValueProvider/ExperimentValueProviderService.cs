@@ -9,13 +9,13 @@
             _experimentService = experimentService;
         }
 
-        // Select option for device, by option probabilities
+        // Selects an option for a device, by option probabilities
         private static ExperimentOption SelectOption(ExperimentOption[] options)
         {
-            // Generate a random decimal value in the range [0, 1) 
+            // Generate a random decimal value in the range of [0, 1) 
             decimal randomValue = (decimal)new Random().NextDouble();
 
-            // Initialize cumulative probability
+            // Initialize a cumulative probability
             decimal cumulativeProbability = 0;
 
             foreach (var category in options)
@@ -33,17 +33,17 @@
 
         public async Task<string> Get(string deviceToken, string experimentName)
         {
-            // Get participant's option value
+            // Get the participant option value
             var value = await _experimentService.GetOptionValueOfDevice(experimentName, deviceToken);
             if (value is not null)
                 return value;
 
-            // If isn't a participant, select option to make one
+            // If isn't a participant, select an option to make him one
             // Get all experiment options
             var options = await _experimentService.GetOptions(experimentName);
-            // Select option
+            // Select an option
             var selectedOption = SelectOption(options);
-            // Make device a participant of experiment with selected option 
+            // Make device a participant of the experiment with the selected option 
             await _experimentService.SetOptionForDevice(experimentName, deviceToken, selectedOption.Id);
 
             return selectedOption.Value;

@@ -1,7 +1,6 @@
 ﻿using ABTestsApi.DataAccess;
-using ABTestsApi.Models.DTOs;
 using Microsoft.Extensions.Caching.Memory;
-using static ABTestsApi.Models.Services.ExperimentStatistics;
+using System.Collections.Concurrent;
 
 namespace ABTestsApi.Models.Services
 {
@@ -32,7 +31,7 @@ namespace ABTestsApi.Models.Services
         private static string CacheExptsKey() => "Experiments";
         // Cache key for experiment options
         private static string CacheOptKey(int id) => $"Options:{id}";
-        // Cache key for experiment option value of device
+        // Cache key for an experiment option value of a device
         private static string CacheDevOptKey(int id, int deviceId) => $"DevOpt:{id}_{deviceId}";
 
         private async Task<Experiment[]> GetAllExperiments()
@@ -46,7 +45,7 @@ namespace ABTestsApi.Models.Services
             {
                 if (!_memoryCache.TryGetValue(CacheExptsKey(), out experiments!))
                 {
-                    // If cache missed, get experiments from DB 
+                    // If cache missed, get experiments from the DB 
                     experiments = await _expRepository.GetAll().ToArrayAsync();
 
                     // Cache experiments 
@@ -84,7 +83,7 @@ namespace ABTestsApi.Models.Services
 
         private async Task<DataAccess.ExperimentOption[]> GetExperimentOptions(string name)
         {
-            // Find experiment and get its id
+            // Find the experiment and get its id
             var experiment = await FindExperiment(name);
             int id = experiment.Id;
 
@@ -94,7 +93,7 @@ namespace ABTestsApi.Models.Services
             if (_memoryCache.TryGetValue(CacheOptKey(id), out options!))
                 return options;
 
-            // Get experiment options from DB on cache miss
+            // Get experiment options from the DB on cache miss
             options = await _optRepository.GetByExperimentId(id).ToArrayAsync();
 
             // On successful receipt of experiment options, cache them
@@ -128,7 +127,7 @@ namespace ABTestsApi.Models.Services
             }).ToArray();
         }
 
-        // Gets assigned to device experiment option. If device isn't a participant of an experiment yet, it returns null
+        // Gets the experiment option that was assigned to the device. If the device isn't a participant of the experiment yet, it returns null
         public async Task<string?> GetOptionValueOfDevice(string experiment, string deviceToken)
         {
             var deviceTask = _deviceService.Find(deviceToken);
@@ -138,20 +137,20 @@ namespace ABTestsApi.Models.Services
             var device = await deviceTask;
             var expt = await exptTask;
 
-            // Try get value from cache 
+            // Try get the value from cache 
             if (!_memoryCache.TryGetValue(CacheDevOptKey(expt.Id, device.Id), out string? value))
             {
-                // If cache missed, try get from DB
+                // If cache missed, try get it from the DB
                 value = await _optRepository.GetOptionValue(expt.Id, device.Id);
 
-                // If present in DB, cache value
+                // If present in the DB, cache the value
                 if (value is not null)
                     _memoryCache.Set(CacheDevOptKey(expt.Id, device.Id), value);
             }
 
             return value;
         }
-        // Sets experiment option for device
+        // Makes the device a participant of the experiment by setting the option value for it
         public async Task SetOptionForDevice(string experiment, string deviceToken, int optionId)
         {
             var device = await _deviceService.Find(deviceToken);
@@ -169,7 +168,7 @@ namespace ABTestsApi.Models.Services
             var expt = await exptTask;
             var option = await optionTask;
 
-            // Cache option value that was set for device
+            // Cache the option value that was set for the device
             _memoryCache.Set(CacheDevOptKey(expt.Id, device.Id), option.Value);
         }
 

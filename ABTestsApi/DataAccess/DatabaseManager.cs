@@ -3,6 +3,7 @@ using System.Data;
 
 namespace ABTestsApi.DataAccess
 {
+    // Manager responsible for executing procedures and handling db connections
     public class DatabaseManager : IDatabaseManager
     {
         private readonly string _connectionString;

@@ -5,7 +5,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ABTestsApi.Swagger
 {
-    // Adds, on swagger page, device-token query param to all endpoints of experiments controller
+    // Adds a device-token query param to all endpoints of the experiments controller on the Swagger page
     public class DeviceTokenOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)

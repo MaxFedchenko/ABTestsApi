@@ -15,7 +15,7 @@ namespace ABTestsApi.Models.Services
             _memoryCache = memoryCache;
         }
 
-        // Cache key for device
+        // Cache key for a device
         private static string CacheKey(string token) => $"Device:{token}";
 
         private async Task<DataAccess.Device?> GetDevice(string token)
@@ -23,14 +23,14 @@ namespace ABTestsApi.Models.Services
             if (token is null)
                 throw new ArgumentNullException(nameof(token));
 
-            // Check cache for device
+            // Check cache for the device
             if (!_memoryCache.TryGetValue(CacheKey(token), out DataAccess.Device? device))
             {
-                // If cache missed, get it from DB
+                // If cache missed, get it from the DB
                 device = await _devRepository.GetByToken(token);
                 if (device is not null)
                 {
-                    // If device is in DB, cache it
+                    // If the device is in the DB, cache it
                     _memoryCache.Set(CacheKey(token), device);
                 }
             }
@@ -67,7 +67,7 @@ namespace ABTestsApi.Models.Services
             var device = new DataAccess.Device { Token = token };
             await _devRepository.Create(device);
 
-            // Cache device on successful creation
+            // Cache the device on successful creation
             _memoryCache.Set(CacheKey(token), device);
         }
     }

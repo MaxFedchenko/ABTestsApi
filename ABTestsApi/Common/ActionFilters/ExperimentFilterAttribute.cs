@@ -6,8 +6,8 @@ using ABTestsApi.Models.DTOs;
 
 namespace ABTestsApi.Common.ActionFilters
 {
-    // Checks if device meets conditions to participate in experiment
-    // If does, delegates value retrieval to experiment service, otherwise, controller action handles it
+    // Checks if a device meets conditions to participate in an experiment
+    // If does, delegates value retrieval to the experiment service, otherwise, a controller action handles it
     public class ExperimentFilterAttribute : ActionFilterAttribute
     {
         private readonly IExperimentService _experimentService;
@@ -37,7 +37,7 @@ namespace ABTestsApi.Common.ActionFilters
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            // Get device token from claims
+            // Get the device token claims
             var deviceToken = context.HttpContext.User.Claims
                 .First(c => c.Type == DeviceTokenAuthenticationClaimTypes.DeviceToken)
                 .Value;
@@ -47,7 +47,7 @@ namespace ABTestsApi.Common.ActionFilters
                 var deviceRegistered = await _deviceService.WhenRegistered(deviceToken);
                 var experimentStarted = await _experimentService.WhenStarted(_experimentName);
 
-                // If experiment was created before the device registration, device can participate
+                // If the experiment was created before device registration, the device can participate
                 if (deviceRegistered > experimentStarted)
                 {
                     context.Result = await GetExperimentResult(deviceToken);
